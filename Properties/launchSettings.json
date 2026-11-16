@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "WindowsCleaner (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "WindowsCleaner (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

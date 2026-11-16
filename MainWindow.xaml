@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="WindowsCleaner.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:WindowsCleaner"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Window.SystemBackdrop>
+        <MicaBackdrop />
+    </Window.SystemBackdrop>
+
+    <Grid Background="Transparent">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="32"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid x:Name="AppTitleBar" Grid.Row="0" Background="Transparent">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0,0,0">
+                <Image Source="Assets/app.ico" Width="16" Height="16" Margin="0,0,8,0"/>
+                <TextBlock Text="Windows Cleaner" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+            </StackPanel>
+        </Grid>
+
+        <StackPanel Grid.Row="1" Spacing="8" Margin="20,8,20,20" VerticalAlignment="Center">
+
+            <!-- Karte 1: Junk-Dateien -->
+            <Grid Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Height="52" Padding="14,0" ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="14" VerticalAlignment="Center">
+                    <FontIcon Glyph="&#xE8A5;" FontSize="18" Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                    <TextBlock Text="Junk-Dateien löschen" VerticalAlignment="Center" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontSize="14"/>
+                </StackPanel>
+
+                <TextBlock x:Name="JunkStatusText"
+                           Grid.Column="1"
+                           Text=""
+                           HorizontalAlignment="Right"
+                           VerticalAlignment="Center"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           FontSize="13"
+                           TextTrimming="CharacterEllipsis"
+                           Margin="0,0,3,0"/>
+
+                <Button Grid.Column="2" Width="40" Height="40" Click="CleanJunk_Click" CornerRadius="6">
+                    <FontIcon Glyph="&#xE74D;" FontSize="15"/>
+                </Button>
+            </Grid>
+
+            <!-- Karte 2: Browser-Cache -->
+            <Grid Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Height="52" Padding="14,0" ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="14" VerticalAlignment="Center">
+                    <FontIcon Glyph="&#xE774;" FontSize="18" Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                    <TextBlock Text="Browser-Cache löschen" VerticalAlignment="Center" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontSize="14"/>
+                </StackPanel>
+
+                <TextBlock x:Name="BrowserStatusText"
+                           Grid.Column="1"
+                           Text=""
+                           HorizontalAlignment="Right"
+                           VerticalAlignment="Center"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           FontSize="13"
+                           TextTrimming="CharacterEllipsis"
+                           Margin="0,0,3,0"/>
+
+                <Button Grid.Column="2" Width="40" Height="40" Click="CleanBrowser_Click" CornerRadius="6">
+                    <FontIcon Glyph="&#xE74D;" FontSize="15"/>
+                </Button>
+            </Grid>
+
+            <!-- Karte 3: Explorer-Verlauf -->
+            <Grid Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Height="52" Padding="14,0" ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="14" VerticalAlignment="Center">
+                    <FontIcon Glyph="&#xE8B7;" FontSize="18" Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                    <TextBlock Text="Explorer-Verlauf löschen" VerticalAlignment="Center" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontSize="14"/>
+                </StackPanel>
+
+                <TextBlock x:Name="ExplorerStatusText"
+                           Grid.Column="1"
+                           Text=""
+                           HorizontalAlignment="Right"
+                           VerticalAlignment="Center"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           FontSize="13"
+                           TextTrimming="CharacterEllipsis"
+                           Margin="0,0,3,0"/>
+
+                <Button Grid.Column="2" Width="40" Height="40" Click="CleanExplorer_Click" CornerRadius="6">
+                    <FontIcon Glyph="&#xE74D;" FontSize="15"/>
+                </Button>
+            </Grid>
+
+            <!-- Karte 4: DNS-Cache -->
+            <Grid Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Height="52" Padding="14,0" ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="14" VerticalAlignment="Center">
+                    <FontIcon Glyph="&#xE909;" FontSize="18" Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                    <TextBlock Text="DNS-Cache bereinigen" VerticalAlignment="Center" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontSize="14"/>
+                </StackPanel>
+
+                <TextBlock x:Name="DnsStatusText"
+                           Grid.Column="1"
+                           Text=""
+                           HorizontalAlignment="Right"
+                           VerticalAlignment="Center"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           FontSize="13"
+                           TextTrimming="CharacterEllipsis"
+                           Margin="0,0,3,0"/>
+
+                <Button Grid.Column="2" Width="40" Height="40" Click="FlushDns_Click" CornerRadius="6">
+                    <FontIcon Glyph="&#xEA99;" FontSize="15"/>
+                </Button>
+            </Grid>
+
+            <!-- Karte 5: Papierkorb -->
+            <Grid Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Height="52" Padding="14,0" ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="14" VerticalAlignment="Center">
+                    <FontIcon Glyph="&#xE74D;" FontSize="18" Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                    <TextBlock Text="Papierkorb leeren" VerticalAlignment="Center" Foreground="{ThemeResource TextFillColorPrimaryBrush}" FontSize="14"/>
+                </StackPanel>
+
+                <TextBlock x:Name="BinStatusText"
+                           Grid.Column="1"
+                           Text=""
+                           HorizontalAlignment="Right"
+                           VerticalAlignment="Center"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           FontSize="13"
+                           TextTrimming="CharacterEllipsis"
+                           Margin="0,0,3,0"/>
+
+                <Button Grid.Column="2" Width="40" Height="40" Click="EmptyBin_Click" CornerRadius="6">
+                    <FontIcon Glyph="&#xE74D;" FontSize="15"/>
+                </Button>
+            </Grid>
+
+        </StackPanel>
+    </Grid>
+</Window>
