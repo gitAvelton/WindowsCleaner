@@ -66,6 +66,7 @@ namespace WindowsCleaner
 
         private int _minWidth = 620;
         private int _minHeight = 200;
+        private bool _updateChecked = false;
 
         public MainWindow()
         {
@@ -100,6 +101,7 @@ namespace WindowsCleaner
             if (this.Content is FrameworkElement rootElement)
             {
                 rootElement.ActualThemeChanged += (s, e) => UpdateTitleBarColors();
+                rootElement.Loaded += MainWindow_Loaded_CheckUpdate;
             }
         }
 
@@ -354,6 +356,158 @@ namespace WindowsCleaner
             }
             catch { }
             return count;
+        }
+
+        private async void MainWindow_Loaded_CheckUpdate(object sender, RoutedEventArgs e)
+        {
+            if (_updateChecked) return;
+            _updateChecked = true;
+
+            try
+            {
+                var update = await GitHubUpdater.CheckForUpdatesAsync();
+                if (update.IsUpdateAvailable && !string.IsNullOrEmpty(update.DownloadUrl))
+                {
+                    var contentPanel = new StackPanel { Spacing = 8 };
+
+                    contentPanel.Children.Add(new TextBlock
+                    {
+                        Text = "Eine neue Version von Windows Cleaner steht bereit. Möchtest du sie jetzt herunterladen und installieren?",
+                        TextWrapping = TextWrapping.Wrap
+                    });
+
+                    if (!string.IsNullOrEmpty(update.HtmlUrl) && Uri.TryCreate(update.HtmlUrl, UriKind.Absolute, out Uri? releaseUri))
+                    {
+                        contentPanel.Children.Add(new HyperlinkButton
+                        {
+                            Content = "Änderungen auf GitHub ansehen",
+                            NavigateUri = releaseUri,
+                            Padding = new Thickness(0, 2, 0, 2)
+                        });
+                    }
+
+                    // Ein Grid mit 2 flexiblen Spalten (*), damit sich die Größe perfekt anpasst
+                    var buttonGrid = new Grid
+                    {
+                        HorizontalAlignment = HorizontalAlignment.Stretch,
+                        VerticalAlignment = VerticalAlignment.Stretch
+                    };
+                    buttonGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                    buttonGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+                    var progressFill = new Border
+                    {
+                        Background = (Brush)Application.Current.Resources["AccentFillColorDefaultBrush"],
+                        HorizontalAlignment = HorizontalAlignment.Stretch,
+                        VerticalAlignment = VerticalAlignment.Stretch,
+                        CornerRadius = new CornerRadius(4),
+                        Opacity = 0.85
+                    };
+                    // Spannt sich über die Spalten auf und wird per Breite gesteuert
+                    Grid.SetColumnSpan(progressFill, 2);
+                    progressFill.Width = 0;
+                    progressFill.HorizontalAlignment = HorizontalAlignment.Left;
+
+                    var buttonLabel = new TextBlock
+                    {
+                        Text = "Jetzt aktualisieren",
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        VerticalAlignment = VerticalAlignment.Center
+                    };
+                    Grid.SetColumnSpan(buttonLabel, 2);
+
+                    buttonGrid.Children.Add(progressFill);
+                    buttonGrid.Children.Add(buttonLabel);
+
+                    var dialog = new ContentDialog
+                    {
+                        Title = $"Update verfügbar ({update.LatestVersion})",
+                        Content = contentPanel,
+                        PrimaryButtonText = "Jetzt aktualisieren",
+                        CloseButtonText = "Später",
+                        DefaultButton = ContentDialogButton.Primary,
+                        XamlRoot = this.Content.XamlRoot
+                    };
+
+                    Button? primaryBtn = null;
+                    dialog.Opened += (s, args) =>
+                    {
+                        primaryBtn = FindVisualChild<Button>(dialog, b => b.Content?.ToString() == "Jetzt aktualisieren");
+                        if (primaryBtn != null)
+                        {
+                            // Übernimmt exakt die Streckung und Ausrichtung des Standard-Buttons
+                            primaryBtn.HorizontalAlignment = HorizontalAlignment.Stretch;
+                            primaryBtn.HorizontalContentAlignment = HorizontalAlignment.Stretch;
+                            primaryBtn.VerticalContentAlignment = VerticalAlignment.Stretch;
+                            primaryBtn.Content = buttonGrid;
+                        }
+                    };
+
+                    dialog.PrimaryButtonClick += async (s, args) =>
+                    {
+                        // Verhindert, dass sich das Update-Fenster schließt!
+                        args.Cancel = true;
+
+                        // Beide Buttons sperren, damit man während des Downloads nicht nochmal klickt
+                        dialog.IsPrimaryButtonEnabled = false;
+                        dialog.IsSecondaryButtonEnabled = false;
+                        if (primaryBtn != null) primaryBtn.IsEnabled = false;
+
+                        // "Später"-Button ebenfalls deaktivieren
+                        var closeBtn = FindVisualChild<Button>(dialog, b => b.Content?.ToString() == "Später");
+                        if (closeBtn != null) closeBtn.IsEnabled = false;
+
+                        buttonLabel.Text = "0 %";
+
+                        var progress = new Progress<double>(percent =>
+                        {
+                            double totalWidth = buttonGrid.ActualWidth;
+                            if (totalWidth > 0)
+                            {
+                                progressFill.Width = totalWidth * (percent / 100.0);
+                            }
+                            buttonLabel.Text = $"{Math.Round(percent)} %";
+                        });
+
+                        try
+                        {
+                            await GitHubUpdater.DownloadAndInstallUpdateAsync(update.DownloadUrl, progress);
+                        }
+                        catch (Exception ex)
+                        {
+                            buttonLabel.Text = "Fehler beim Download";
+                            if (closeBtn != null) closeBtn.IsEnabled = true;
+                            Debug.WriteLine($"Download-Fehler: {ex.Message}");
+                        }
+                    };
+
+                    await dialog.ShowAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Update-Prüfung fehlgeschlagen: {ex.Message}");
+            }
+        }
+
+        private static T? FindVisualChild<T>(DependencyObject parent, Func<T, bool>? predicate = null) where T : DependencyObject
+        {
+            int count = VisualTreeHelper.GetChildrenCount(parent);
+            for (int i = 0; i < count; i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                if (child is T typedChild && (predicate == null || predicate(typedChild)))
+                {
+                    return typedChild;
+                }
+
+                var result = FindVisualChild(child, predicate);
+                if (result != null)
+                {
+                    return result;
+                }
+            }
+            return null;
         }
     }
 }
