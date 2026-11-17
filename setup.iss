@@ -1,6 +1,8 @@
 [Setup]
 AppName=Windows Cleaner
 AppVersion=1.0
+AppPublisher=gitAvelton
+AppPublisherURL=https://github.com/gitAvelton/WindowsCleaner
 CloseApplications=yes
 RestartApplications=yes
 DefaultDirName={autopf}\WindowsCleaner

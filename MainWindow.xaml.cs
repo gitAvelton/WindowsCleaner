@@ -74,17 +74,19 @@ namespace WindowsCleaner
 
             try
             {
-                // Lädt das Icon zuverlässig aus dem Assets-Ordner für Fenster & Taskleiste
+                // Zuverlässiges Laden des Icons für das WinUI 3 AppWindow über einen Datei-Pfad
                 string iconPath = System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "app.ico");
                 if (System.IO.File.Exists(iconPath))
                 {
                     IntPtr hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
                     Microsoft.UI.WindowId windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd);
                     Microsoft.UI.Windowing.AppWindow appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
+
+                    // Setzt das Icon für Titelleiste und Taskleiste
                     appWindow.SetIcon(iconPath);
                 }
             }
-            catch { /* Fallback */ }
+            catch { /* Fallback, falls Datei fehlt */ }
 
             IntPtr hwnd = WindowNative.GetWindowHandle(this);
 
